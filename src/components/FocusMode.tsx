@@ -21,6 +21,9 @@ const FocusMode: React.FC<FocusModeProps> = ({
   const [treesPlanted, setTreesPlanted] = useState(0);
   const { toast } = useToast();
   
+  // For development purposes, let's make the session shorter
+  const actualDuration = process.env.NODE_ENV === 'development' ? 10 : duration * 60; // 10 seconds in dev mode
+  
   useEffect(() => {
     let timer: ReturnType<typeof setInterval> | null = null;
     
@@ -48,13 +51,14 @@ const FocusMode: React.FC<FocusModeProps> = ({
   }, [isActive, timeRemaining, onComplete, toast]);
   
   const startFocusMode = () => {
-    setTimeRemaining(duration * 60);
+    // For development, use a shorter time
+    setTimeRemaining(process.env.NODE_ENV === 'development' ? 10 : duration * 60);
     setIsActive(true);
     setIsOpen(false);
     
     toast({
       title: "Focus Mode Activated",
-      description: `Stay focused for ${duration} minutes. A tree will be planted when you complete this session.`,
+      description: `Stay focused for ${process.env.NODE_ENV === 'development' ? '10 seconds' : duration + ' minutes'}. A tree will be planted when you complete this session.`,
     });
   };
   
@@ -75,7 +79,7 @@ const FocusMode: React.FC<FocusModeProps> = ({
   };
   
   // Calculate progress percentage
-  const progressPercentage = 100 - (timeRemaining / (duration * 60)) * 100;
+  const progressPercentage = 100 - (timeRemaining / (process.env.NODE_ENV === 'development' ? 10 : duration * 60)) * 100;
   
   return (
     <>
@@ -125,8 +129,8 @@ const FocusMode: React.FC<FocusModeProps> = ({
           <div className="py-4">
             <div className="flex items-center justify-center space-x-4 mb-6">
               <div className="text-center">
-                <div className="text-3xl font-bold">{duration}</div>
-                <div className="text-sm text-gray-500">Minutes</div>
+                <div className="text-3xl font-bold">{process.env.NODE_ENV === 'development' ? '10 sec' : duration}</div>
+                <div className="text-sm text-gray-500">{process.env.NODE_ENV === 'development' ? 'Seconds' : 'Minutes'}</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold">{treesPlanted}</div>
@@ -149,7 +153,9 @@ const FocusMode: React.FC<FocusModeProps> = ({
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsOpen(false)}>Cancel</Button>
-            <Button onClick={startFocusMode}>Start {duration}-Minute Focus</Button>
+            <Button onClick={startFocusMode}>
+              Start {process.env.NODE_ENV === 'development' ? '10-Second' : `${duration}-Minute`} Focus
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

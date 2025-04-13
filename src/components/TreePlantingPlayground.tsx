@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TreeDeciduous, Award, Flower2, CloudSun } from 'lucide-react';
+import { TreeDeciduous, Award, Flower2, CloudSun, TreePine, Leaf } from 'lucide-react';
 
 interface TreePlantingPlaygroundProps {
   treesPlanted: number;
@@ -10,6 +10,18 @@ interface TreePlantingPlaygroundProps {
 const TreePlantingPlayground: React.FC<TreePlantingPlaygroundProps> = ({
   treesPlanted = 0
 }) => {
+  // Animated counter for trees
+  const [displayedCount, setDisplayedCount] = useState(treesPlanted);
+  
+  useEffect(() => {
+    if (treesPlanted > displayedCount) {
+      const timer = setTimeout(() => {
+        setDisplayedCount(prev => prev + 1);
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [treesPlanted, displayedCount]);
+
   // Achievement levels
   const achievements = [
     { count: 1, title: "Seedling", description: "Planted your first tree!" },
@@ -36,8 +48,22 @@ const TreePlantingPlayground: React.FC<TreePlantingPlaygroundProps> = ({
   
   const progressToNext = getProgressToNext();
 
+  // Tree types for variety
+  const treeTypes = [
+    { icon: TreeDeciduous, color: "text-green-600", bgColor: "bg-green-100" },
+    { icon: TreePine, color: "text-emerald-600", bgColor: "bg-emerald-100" },
+    { icon: Flower2, color: "text-pink-500", bgColor: "bg-pink-100" },
+    { icon: Leaf, color: "text-teal-500", bgColor: "bg-teal-100" },
+    { icon: CloudSun, color: "text-blue-500", bgColor: "bg-blue-100" }
+  ];
+
+  // Get a tree type based on index
+  const getTreeType = (index: number) => {
+    return treeTypes[index % treeTypes.length];
+  };
+
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="flex items-center">
           <TreeDeciduous className="h-5 w-5 mr-2 text-green-600" />
@@ -51,12 +77,17 @@ const TreePlantingPlayground: React.FC<TreePlantingPlaygroundProps> = ({
         <div className="flex justify-center mb-6">
           <div className="relative w-40 h-40 bg-green-50 rounded-full flex items-center justify-center overflow-hidden">
             <div className="z-10 flex flex-col items-center">
-              <span className="text-4xl font-bold text-green-700">{treesPlanted}</span>
+              <span className="text-4xl font-bold text-green-700 transition-all duration-500">
+                {displayedCount}
+              </span>
               <span className="text-green-600 font-medium">Trees Planted</span>
             </div>
             <div 
               className="absolute bottom-0 left-0 right-0 bg-green-200" 
-              style={{ height: `${Math.min(treesPlanted * 4, 100)}%`, transition: 'height 1s ease-out' }}
+              style={{ 
+                height: `${Math.min(treesPlanted * 4, 100)}%`, 
+                transition: 'height 1s ease-out' 
+              }}
             />
           </div>
         </div>
@@ -84,7 +115,7 @@ const TreePlantingPlayground: React.FC<TreePlantingPlaygroundProps> = ({
               </div>
               <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded-full"
+                  className="h-full bg-blue-500 rounded-full transition-all duration-500"
                   style={{ width: `${progressToNext}%` }}
                 />
               </div>
@@ -93,17 +124,17 @@ const TreePlantingPlayground: React.FC<TreePlantingPlaygroundProps> = ({
         )}
         
         <div className="grid grid-cols-3 gap-2 mt-4">
-          {Array.from({ length: Math.min(treesPlanted, 12) }).map((_, i) => (
-            <div key={i} className="aspect-square bg-green-100 rounded-md flex items-center justify-center">
-              {i % 3 === 0 ? (
-                <TreeDeciduous className="h-6 w-6 text-green-600" />
-              ) : i % 3 === 1 ? (
-                <Flower2 className="h-6 w-6 text-pink-500" />
-              ) : (
-                <CloudSun className="h-6 w-6 text-blue-500" />
-              )}
-            </div>
-          ))}
+          {Array.from({ length: Math.min(treesPlanted, 12) }).map((_, i) => {
+            const treeType = getTreeType(i);
+            const TreeIcon = treeType.icon;
+            return (
+              <div key={i} 
+                className={`aspect-square ${treeType.bgColor} rounded-md flex items-center justify-center transition-all hover:scale-105`}
+              >
+                <TreeIcon className={`h-6 w-6 ${treeType.color}`} />
+              </div>
+            );
+          })}
         </div>
         
         {treesPlanted > 12 && (
