@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,8 @@ import CodeEditor from '@/components/CodeEditor';
 import { executeQuery } from '@/utils/sqlUtils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { BookOpen, ChevronRight, ChevronLeft, Award } from 'lucide-react';
+import { BookOpen, ChevronRight, ChevronLeft, Award, Download, ExternalLink, Bookmark, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Tutorials = () => {
   const { toast } = useToast();
@@ -143,6 +143,68 @@ const Tutorials = () => {
       setQueryResult(null);
     }
   };
+
+  const sqlCheatSheet = [
+    {
+      category: "Basic Queries",
+      commands: [
+        { name: "SELECT", syntax: "SELECT column1, column2 FROM table_name;", description: "Retrieve data from a table" },
+        { name: "SELECT DISTINCT", syntax: "SELECT DISTINCT column FROM table_name;", description: "Return only unique values" },
+        { name: "WHERE", syntax: "SELECT * FROM table_name WHERE condition;", description: "Filter records" },
+        { name: "ORDER BY", syntax: "SELECT * FROM table_name ORDER BY column ASC|DESC;", description: "Sort the result" },
+        { name: "LIMIT", syntax: "SELECT * FROM table_name LIMIT number;", description: "Limit the number of records returned" }
+      ]
+    },
+    {
+      category: "Filtering & Conditions",
+      commands: [
+        { name: "AND / OR", syntax: "SELECT * FROM table_name WHERE condition1 AND|OR condition2;", description: "Combine conditions" },
+        { name: "IN", syntax: "SELECT * FROM table_name WHERE column IN (value1, value2);", description: "Match any value in a list" },
+        { name: "BETWEEN", syntax: "SELECT * FROM table_name WHERE column BETWEEN value1 AND value2;", description: "Match values in a range" },
+        { name: "LIKE", syntax: "SELECT * FROM table_name WHERE column LIKE pattern;", description: "Match a pattern ('%' for any characters, '_' for one character)" },
+        { name: "NULL", syntax: "SELECT * FROM table_name WHERE column IS NULL;", description: "Match NULL values" }
+      ]
+    },
+    {
+      category: "Joins",
+      commands: [
+        { name: "INNER JOIN", syntax: "SELECT * FROM table1 INNER JOIN table2 ON table1.id = table2.id;", description: "Return records with matching values in both tables" },
+        { name: "LEFT JOIN", syntax: "SELECT * FROM table1 LEFT JOIN table2 ON table1.id = table2.id;", description: "Return all records from the left table, and matches from the right" },
+        { name: "RIGHT JOIN", syntax: "SELECT * FROM table1 RIGHT JOIN table2 ON table1.id = table2.id;", description: "Return all records from the right table, and matches from the left" },
+        { name: "FULL JOIN", syntax: "SELECT * FROM table1 FULL JOIN table2 ON table1.id = table2.id;", description: "Return records when there is a match in either table" }
+      ]
+    },
+    {
+      category: "Aggregate Functions",
+      commands: [
+        { name: "COUNT", syntax: "SELECT COUNT(column) FROM table_name;", description: "Count the number of rows" },
+        { name: "SUM", syntax: "SELECT SUM(column) FROM table_name;", description: "Sum values in a column" },
+        { name: "AVG", syntax: "SELECT AVG(column) FROM table_name;", description: "Calculate the average of a column" },
+        { name: "MIN / MAX", syntax: "SELECT MIN(column), MAX(column) FROM table_name;", description: "Find the smallest/largest value" },
+        { name: "GROUP BY", syntax: "SELECT column, COUNT(*) FROM table_name GROUP BY column;", description: "Group rows with the same values" },
+        { name: "HAVING", syntax: "SELECT column, COUNT(*) FROM table_name GROUP BY column HAVING COUNT(*) > 5;", description: "Filter groups" }
+      ]
+    },
+    {
+      category: "Advanced Features",
+      commands: [
+        { name: "Subqueries", syntax: "SELECT * FROM table1 WHERE column > (SELECT AVG(column) FROM table1);", description: "Query nested inside another query" },
+        { name: "CTEs", syntax: "WITH cte_name AS (SELECT * FROM table) SELECT * FROM cte_name;", description: "Common Table Expressions (temporary named result set)" },
+        { name: "CASE", syntax: "SELECT CASE WHEN condition THEN result ELSE result END FROM table;", description: "Add conditional logic" },
+        { name: "Window Functions", syntax: "SELECT column, AVG(column) OVER (PARTITION BY other_column) FROM table;", description: "Perform calculations across a set of rows" },
+        { name: "UNION / INTERSECT", syntax: "SELECT column FROM table1 UNION SELECT column FROM table2;", description: "Combine results from multiple queries" }
+      ]
+    }
+  ];
+
+  const additionalResources = [
+    { name: "Official SQL Documentation", url: "https://www.sqlite.org/docs.html" },
+    { name: "W3Schools SQL Tutorial", url: "https://www.w3schools.com/sql/" },
+    { name: "SQL Fiddle (Practice Online)", url: "http://sqlfiddle.com/" },
+    { name: "PostgreSQL Documentation", url: "https://www.postgresql.org/docs/" },
+    { name: "MySQL Documentation", url: "https://dev.mysql.com/doc/" },
+    { name: "SQL Interview Questions", url: "https://www.interviewbit.com/sql-interview-questions/" }
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -290,12 +352,70 @@ const Tutorials = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p>Practice exercises will be available once you complete the related lessons.</p>
+                  <div className="mb-4">
+                    <p className="mb-6">Ready to test your SQL skills? Our practice section includes exercises ranging from basic to advanced difficulty.</p>
+                    <ul className="space-y-2 mb-6">
+                      <li className="flex items-center"><Check className="text-green-500 h-4 w-4 mr-2" /> 15+ practice exercises</li>
+                      <li className="flex items-center"><Check className="text-green-500 h-4 w-4 mr-2" /> Solutions and hints provided</li>
+                      <li className="flex items-center"><Check className="text-green-500 h-4 w-4 mr-2" /> Track your progress</li>
+                      <li className="flex items-center"><Check className="text-green-500 h-4 w-4 mr-2" /> Earn badges as you improve</li>
+                    </ul>
+                  </div>
+                  <div className="flex justify-center">
+                    <Button as={Link} to="/practice" className="flex items-center">
+                      Go to Practice Exercises <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
             
-            <TabsContent value="resources">
+            <TabsContent value="resources" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Bookmark className="mr-2 h-5 w-5" /> SQL Cheat Sheet
+                  </CardTitle>
+                  <CardDescription>
+                    Quick reference for common SQL commands and syntax
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-0">
+                  <div className="space-y-6">
+                    {sqlCheatSheet.map((section, idx) => (
+                      <div key={idx} className="px-6">
+                        <h3 className="text-lg font-medium mb-2">{section.category}</h3>
+                        <div className="rounded-md border overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Command</TableHead>
+                                <TableHead>Syntax</TableHead>
+                                <TableHead>Description</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {section.commands.map((command, i) => (
+                                <TableRow key={i}>
+                                  <TableCell className="font-medium">{command.name}</TableCell>
+                                  <TableCell className="font-mono text-xs">{command.syntax}</TableCell>
+                                  <TableCell>{command.description}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                  <Button variant="outline" className="flex items-center">
+                    <Download className="mr-2 h-4 w-4" /> Download Full Cheat Sheet
+                  </Button>
+                </CardFooter>
+              </Card>
+              
               <Card>
                 <CardHeader>
                   <CardTitle>Additional Resources</CardTitle>
@@ -304,17 +424,45 @@ const Tutorials = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2">
-                    <li>
-                      <a href="#" className="text-blue-600 hover:underline">SQL Cheat Sheet</a>
-                    </li>
-                    <li>
-                      <a href="#" className="text-blue-600 hover:underline">Common SQL Interview Questions</a>
-                    </li>
-                    <li>
-                      <a href="#" className="text-blue-600 hover:underline">Database Design Best Practices</a>
-                    </li>
+                  <ul className="space-y-3">
+                    {additionalResources.map((resource, i) => (
+                      <li key={i}>
+                        <a 
+                          href={resource.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-blue-600 hover:underline flex items-center"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" /> {resource.name}
+                        </a>
+                      </li>
+                    ))}
                   </ul>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recommended Books</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium mb-2">SQL Cookbook</h3>
+                      <p className="text-sm text-gray-600 mb-2">By Anthony Molinaro</p>
+                      <p className="text-sm">Solutions to common SQL problems for data analysis.</p>
+                    </div>
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium mb-2">Learning SQL</h3>
+                      <p className="text-sm text-gray-600 mb-2">By Alan Beaulieu</p>
+                      <p className="text-sm">Comprehensive guide to SQL fundamentals.</p>
+                    </div>
+                    <div className="border rounded-lg p-4">
+                      <h3 className="font-medium mb-2">SQL Performance Explained</h3>
+                      <p className="text-sm text-gray-600 mb-2">By Markus Winand</p>
+                      <p className="text-sm">Understanding indexing for performance optimization.</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

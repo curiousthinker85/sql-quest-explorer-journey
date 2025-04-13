@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import { executeQuery } from '@/utils/sqlUtils';
 import { databaseTables } from '@/data/lessons';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Check, Code, HelpCircle, RotateCw } from 'lucide-react';
+import { Check, Code, HelpCircle, RotateCw, Filter, SortDesc, PlusCircle, Users, ScrollText } from 'lucide-react';
 
 interface Exercise {
   id: string;
@@ -23,6 +22,7 @@ interface Exercise {
   expectedResultDescription: string;
   solution: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
+  category: 'Basic' | 'Filtering' | 'Joins' | 'Aggregation' | 'Subqueries' | 'Advanced';
   completed?: boolean;
 }
 
@@ -37,6 +37,14 @@ const Practice = () => {
     error?: string;
   } | null>(null);
   const [userExercises, setUserExercises] = useState<Exercise[]>(exercises.map(ex => ({...ex, completed: false})));
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
+
+  const filteredExercises = exercises;
+  const filteredUserExercises = userExercises.filter(ex => 
+    (!categoryFilter || ex.category === categoryFilter) &&
+    (!difficultyFilter || ex.difficulty === difficultyFilter)
+  );
 
   const handleRunQuery = (query: string) => {
     const result = executeQuery(query);
@@ -50,9 +58,7 @@ const Practice = () => {
       });
     } else {
       const currentExercise = userExercises[activeExerciseIndex];
-      // This is a simple check - in a real app, you'd compare the actual results
       if (!result.error && result.rows.length > 0) {
-        // Mark as completed if not already
         if (!currentExercise.completed) {
           const updatedExercises = [...userExercises];
           updatedExercises[activeExerciseIndex].completed = true;
@@ -140,7 +146,90 @@ const Practice = () => {
             <div className="lg:col-span-1 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Exercise {activeExerciseIndex + 1} of {userExercises.length}</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Exercises</CardTitle>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => setCategoryFilter(null)}>
+                        <Filter className="h-4 w-4 mr-1" /> All
+                      </Button>
+                    </div>
+                  </div>
+                  <CardDescription>Choose your challenge</CardDescription>
+                </CardHeader>
+                <CardContent className="max-h-[240px] overflow-y-auto">
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    {['Basic', 'Filtering', 'Joins', 'Aggregation', 'Subqueries', 'Advanced'].map((category) => (
+                      <Button 
+                        key={category}
+                        variant={categoryFilter === category ? "default" : "outline"} 
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => setCategoryFilter(categoryFilter === category ? null : category as any)}
+                      >
+                        {category}
+                      </Button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {['Easy', 'Medium', 'Hard'].map((difficulty) => (
+                      <Button 
+                        key={difficulty}
+                        variant={difficultyFilter === difficulty ? "default" : "outline"} 
+                        size="sm"
+                        className={`text-xs ${
+                          difficulty === 'Easy' ? 'border-green-200 text-green-800' : 
+                          difficulty === 'Medium' ? 'border-yellow-200 text-yellow-800' : 
+                          'border-red-200 text-red-800'
+                        }`}
+                        onClick={() => setDifficultyFilter(difficultyFilter === difficulty ? null : difficulty as any)}
+                      >
+                        {difficulty}
+                      </Button>
+                    ))}
+                  </div>
+                  <ul className="space-y-2">
+                    {filteredUserExercises.map((exercise, index) => (
+                      <li key={exercise.id}>
+                        <Button 
+                          variant={activeExerciseIndex === userExercises.indexOf(exercise) ? "default" : "ghost"} 
+                          className="w-full justify-start text-left" 
+                          onClick={() => {
+                            setActiveExerciseIndex(userExercises.indexOf(exercise));
+                            setQueryResult(null);
+                            setShowHint(false);
+                            setShowSolution(false);
+                          }}
+                        >
+                          <div className="flex items-center w-full">
+                            <div className="flex-1 truncate">{exercise.title}</div>
+                            {exercise.completed && <Check className="h-4 w-4 text-green-500 ml-2" />}
+                          </div>
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter className="flex justify-between border-t pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={handlePrevious}
+                    disabled={activeExerciseIndex === 0}
+                  >
+                    Previous
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleNext}
+                    disabled={activeExerciseIndex === userExercises.length - 1}
+                  >
+                    Next
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Current Exercise</CardTitle>
                   <CardDescription>{activeExercise.title}</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -188,22 +277,6 @@ const Practice = () => {
                     </Button>
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button 
-                    variant="outline" 
-                    onClick={handlePrevious}
-                    disabled={activeExerciseIndex === 0}
-                  >
-                    Previous
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleNext}
-                    disabled={activeExerciseIndex === userExercises.length - 1}
-                  >
-                    Next
-                  </Button>
-                </CardFooter>
               </Card>
               
               <Card>
@@ -290,7 +363,6 @@ const Practice = () => {
   );
 };
 
-// Sample exercises
 const exercises: Exercise[] = [
   {
     id: "select-all",
@@ -300,7 +372,8 @@ const exercises: Exercise[] = [
     initialCode: "-- Write your query here\n",
     expectedResultDescription: "All users in the database with all their details.",
     solution: "SELECT * FROM users;",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    category: "Basic"
   },
   {
     id: "filter-by-id",
@@ -310,7 +383,8 @@ const exercises: Exercise[] = [
     initialCode: "-- Write your query here\n",
     expectedResultDescription: "Only users with ID greater than 1.",
     solution: "SELECT * FROM users WHERE id > 1;",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    category: "Filtering"
   },
   {
     id: "order-by-price",
@@ -320,7 +394,8 @@ const exercises: Exercise[] = [
     initialCode: "-- Write your query here\n",
     expectedResultDescription: "All products ordered from highest price to lowest.",
     solution: "SELECT * FROM products ORDER BY price DESC;",
-    difficulty: "Easy"
+    difficulty: "Easy",
+    category: "Basic"
   },
   {
     id: "count-products",
@@ -330,7 +405,8 @@ const exercises: Exercise[] = [
     initialCode: "-- Write your query here\n",
     expectedResultDescription: "Category IDs with a count of products in each.",
     solution: "SELECT category_id, COUNT(*) AS product_count FROM products GROUP BY category_id;",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    category: "Aggregation"
   },
   {
     id: "join-tables",
@@ -340,7 +416,8 @@ const exercises: Exercise[] = [
     initialCode: "-- Write your query here\n",
     expectedResultDescription: "Products with their corresponding category names.",
     solution: "SELECT products.name, categories.name AS category FROM products JOIN categories ON products.category_id = categories.id;",
-    difficulty: "Medium"
+    difficulty: "Medium",
+    category: "Joins"
   },
   {
     id: "above-average",
@@ -350,8 +427,119 @@ const exercises: Exercise[] = [
     initialCode: "-- Write your query here\n",
     expectedResultDescription: "Products that are priced higher than the average.",
     solution: "SELECT * FROM products WHERE price > (SELECT AVG(price) FROM products);",
-    difficulty: "Hard"
+    difficulty: "Hard",
+    category: "Subqueries"
   },
+  {
+    id: "find-most-expensive",
+    title: "Find Most Expensive Product",
+    description: "Write a query to find the most expensive product in each category.",
+    hint: "Use subqueries or window functions to determine the maximum price in each category.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "The most expensive product in each category.",
+    solution: "WITH RankedProducts AS (\n  SELECT *, RANK() OVER (PARTITION BY category_id ORDER BY price DESC) as price_rank\n  FROM products\n)\nSELECT * FROM RankedProducts WHERE price_rank = 1;",
+    difficulty: "Hard",
+    category: "Advanced"
+  },
+  {
+    id: "recent-orders",
+    title: "Recent Orders",
+    description: "Write a query to find all orders placed in the last 30 days, sorted by most recent first.",
+    hint: "Use date functions to filter based on the current date minus 30 days.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "Orders from the last 30 days, newest first.",
+    solution: "SELECT * FROM orders WHERE created_at >= DATE('now', '-30 days') ORDER BY created_at DESC;",
+    difficulty: "Medium",
+    category: "Filtering"
+  },
+  {
+    id: "user-order-count",
+    title: "User Order Counts",
+    description: "Write a query to count how many orders each user has placed, including users with zero orders.",
+    hint: "Use LEFT JOIN with GROUP BY to include all users, even those without orders.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "Each user with their order count, including those with zero.",
+    solution: "SELECT users.id, users.username, COUNT(orders.id) AS order_count\nFROM users\nLEFT JOIN orders ON users.id = orders.user_id\nGROUP BY users.id, users.username;",
+    difficulty: "Medium",
+    category: "Joins"
+  },
+  {
+    id: "category-avg-price",
+    title: "Category Average Prices",
+    description: "Calculate the average price of products in each category and compare each product's price to its category average.",
+    hint: "Use window functions with AVG() to calculate category averages without grouping the results.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "Products with their prices and category average prices.",
+    solution: "SELECT p.id, p.name, p.price, p.category_id,\n  AVG(p.price) OVER (PARTITION BY p.category_id) AS category_avg_price,\n  p.price - AVG(p.price) OVER (PARTITION BY p.category_id) AS price_diff_from_avg\nFROM products p;",
+    difficulty: "Hard",
+    category: "Advanced"
+  },
+  {
+    id: "find-duplicates",
+    title: "Find Duplicate Emails",
+    description: "Write a query to find any duplicate email addresses in the users table.",
+    hint: "Use GROUP BY with HAVING to filter results based on counts.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "Email addresses that appear more than once in the users table.",
+    solution: "SELECT email, COUNT(*) as count\nFROM users\nGROUP BY email\nHAVING COUNT(*) > 1;",
+    difficulty: "Medium",
+    category: "Aggregation"
+  },
+  {
+    id: "self-join",
+    title: "Self Join Challenge",
+    description: "Assuming the users table has a 'referred_by' column with the ID of the user who referred them, find all users who were referred by someone else.",
+    hint: "Use a self-join to connect users with their referrers.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "Users with their referrer's username.",
+    solution: "SELECT u1.id, u1.username, u2.username AS referred_by\nFROM users u1\nJOIN users u2 ON u1.referred_by = u2.id;",
+    difficulty: "Hard",
+    category: "Joins"
+  },
+  {
+    id: "complex-filtering",
+    title: "Complex Filtering",
+    description: "Find all products that are either in category 1 with a price over $50, or in category 2 with a price under $50.",
+    hint: "Use multiple conditions with AND/OR operators in the WHERE clause.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "Products matching the complex filter criteria.",
+    solution: "SELECT * FROM products\nWHERE (category_id = 1 AND price > 50) OR (category_id = 2 AND price < 50);",
+    difficulty: "Medium",
+    category: "Filtering"
+  },
+  {
+    id: "recursive-cte",
+    title: "Recursive CTE",
+    description: "Given a 'categories' table with 'id' and 'parent_id' columns, write a query to retrieve all parent categories for category with id=5.",
+    hint: "Use a recursive Common Table Expression (CTE) to traverse the hierarchy.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "All parent categories in the hierarchy above category 5.",
+    solution: "WITH RECURSIVE CategoryHierarchy AS (\n  SELECT id, name, parent_id FROM categories WHERE id = 5\n  UNION ALL\n  SELECT c.id, c.name, c.parent_id FROM categories c\n  JOIN CategoryHierarchy ch ON c.id = ch.parent_id\n)\nSELECT * FROM CategoryHierarchy;",
+    difficulty: "Hard",
+    category: "Advanced"
+  },
+  {
+    id: "case-when",
+    title: "CASE WHEN Expression",
+    description: "Write a query to categorize products by price range: 'Budget' if under $25, 'Mid-range' if $25-$75, and 'Premium' if over $75.",
+    hint: "Use CASE WHEN statements to create conditional logic in your query.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "Products with their price category label.",
+    solution: "SELECT id, name, price,\n  CASE\n    WHEN price < 25 THEN 'Budget'\n    WHEN price BETWEEN 25 AND 75 THEN 'Mid-range'\n    ELSE 'Premium'\n  END AS price_category\nFROM products;",
+    difficulty: "Medium",
+    category: "Basic"
+  },
+  {
+    id: "multiple-joins",
+    title: "Multiple Table Joins",
+    description: "Write a query to find all orders, with the user who placed them and the products they ordered.",
+    hint: "You'll need to join multiple tables including a junction table for the many-to-many relationship.",
+    initialCode: "-- Write your query here\n",
+    expectedResultDescription: "Orders with user and product details.",
+    solution: "SELECT o.id AS order_id, u.username, p.name AS product_name, op.quantity\nFROM orders o\nJOIN users u ON o.user_id = u.id\nJOIN order_products op ON o.id = op.order_id\nJOIN products p ON op.product_id = p.id;",
+    difficulty: "Hard",
+    category: "Joins"
+  }
 ];
 
 export default Practice;
