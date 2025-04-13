@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import FocusMode from '@/components/FocusMode';
 import TreePlantingPlayground from '@/components/TreePlantingPlayground';
-import { BarChart, Calendar, CheckCircle2, Clock, Award, BarChart2, TrendingUp } from 'lucide-react';
+import { BarChart, Calendar, CheckCircle2, Clock, Award, BarChart2, TrendingUp, BookOpen, TreeDeciduous } from 'lucide-react';
 
 const ProgressPage = () => {
   const [treesPlanted, setTreesPlanted] = useState(3);
@@ -92,7 +91,7 @@ const ProgressPage = () => {
               <CardContent>
                 <div className="flex items-baseline justify-between">
                   <div className="text-3xl font-bold">{treesPlanted}</div>
-                  <Tree className="h-4 w-4 text-green-500" />
+                  <TreeDeciduous className="h-4 w-4 text-green-500" />
                 </div>
                 <div className="text-sm text-gray-500 mt-2">
                   Next achievement in {5 - (treesPlanted % 5)} trees
@@ -210,7 +209,7 @@ const ProgressPage = () => {
                         </Badge>
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center
                           ${achievement.unlocked ? "bg-green-100" : "bg-gray-100"}`}>
-                          <award.icon className={`h-5 w-5 ${achievement.unlocked ? "text-green-600" : "text-gray-400"}`} />
+                          <Award className={`h-5 w-5 ${achievement.unlocked ? "text-green-600" : "text-gray-400"}`} />
                         </div>
                       </div>
                       <CardTitle className="text-lg">{achievement.title}</CardTitle>
@@ -321,7 +320,7 @@ const achievements = [
   {
     title: 'Environmental Hero',
     description: 'Plant 5 trees through focus sessions',
-    icon: Tree,
+    icon: TreeDeciduous,
     unlocked: false,
     requirement: 'Complete 5 focus sessions'
   },
@@ -347,7 +346,5 @@ const achievements = [
     requirement: 'Accumulate 5 hours of study time'
   }
 ];
-
-import { BookOpen, Tree } from 'lucide-react';
 
 export default ProgressPage;

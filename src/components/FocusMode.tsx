@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { Clock, Tree, TimerOff, Award } from 'lucide-react';
+import { Clock, TreeDeciduous, TimerOff, Award } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface FocusModeProps {
@@ -136,7 +136,7 @@ const FocusMode: React.FC<FocusModeProps> = ({
             
             <div className="bg-green-50 p-4 rounded-md border border-green-100">
               <div className="flex items-start">
-                <Tree className="h-5 w-5 text-green-500 mt-0.5 mr-2" />
+                <TreeDeciduous className="h-5 w-5 text-green-500 mt-0.5 mr-2" />
                 <div>
                   <h4 className="font-medium text-green-800">Plant a Tree</h4>
                   <p className="text-sm text-green-700">

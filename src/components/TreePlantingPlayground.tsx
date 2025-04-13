@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tree, Award, Flower2, CloudSun } from 'lucide-react';
+import { TreeDeciduous, Award, Flower2, CloudSun } from 'lucide-react';
 
 interface TreePlantingPlaygroundProps {
   treesPlanted: number;
@@ -40,7 +40,7 @@ const TreePlantingPlayground: React.FC<TreePlantingPlaygroundProps> = ({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center">
-          <Tree className="h-5 w-5 mr-2 text-green-600" />
+          <TreeDeciduous className="h-5 w-5 mr-2 text-green-600" />
           Your Virtual Forest
         </CardTitle>
         <CardDescription>
@@ -96,7 +96,7 @@ const TreePlantingPlayground: React.FC<TreePlantingPlaygroundProps> = ({
           {Array.from({ length: Math.min(treesPlanted, 12) }).map((_, i) => (
             <div key={i} className="aspect-square bg-green-100 rounded-md flex items-center justify-center">
               {i % 3 === 0 ? (
-                <Tree className="h-6 w-6 text-green-600" />
+                <TreeDeciduous className="h-6 w-6 text-green-600" />
               ) : i % 3 === 1 ? (
                 <Flower2 className="h-6 w-6 text-pink-500" />
               ) : (
