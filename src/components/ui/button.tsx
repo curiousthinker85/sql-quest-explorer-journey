@@ -46,15 +46,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, to, ...props }, ref) => {
     // If "to" prop is provided, render a Link instead of a button
     if (to) {
-      // Extract only the props that are compatible with LinkProps
+      // We need to handle onClick separately because the event types are different
       const { onClick, children, ...buttonProps } = props;
       
-      // Only pass compatible props to RouterLink
+      // Create a properly typed onClick handler for the RouterLink if the original exists
+      const handleClick = onClick 
+        ? (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+            // This is safe because we're just using the event object without accessing button-specific properties
+            onClick(e as unknown as React.MouseEvent<HTMLButtonElement, MouseEvent>);
+          }
+        : undefined;
+      
       return (
         <RouterLink
           to={to}
           className={cn(buttonVariants({ variant, size, className }))}
-          onClick={onClick}
+          onClick={handleClick}
         >
           {children}
         </RouterLink>
