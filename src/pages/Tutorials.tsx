@@ -362,7 +362,7 @@ const Tutorials = () => {
                     </ul>
                   </div>
                   <div className="flex justify-center">
-                    <Button as={Link} to="/practice" className="flex items-center">
+                    <Button to="/practice" className="flex items-center">
                       Go to Practice Exercises <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
